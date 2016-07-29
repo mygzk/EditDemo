@@ -209,11 +209,15 @@ public class Main2Activity extends Activity implements View.OnClickListener, Lis
         int firstPosition = listView2.getFirstVisiblePosition();
         //只能返回当前可见区域（列表可滚动）的子项
         View selectCircleItem = listView2.getChildAt(commentConfig.circlePosition - firstPosition);
-
+        Log.e(TAG,"selectCircleItem:"+selectCircleItem);
         if (selectCircleItem != null) {
             selectItemH = selectCircleItem.getHeight();
+        }else{
+            Log.e(TAG,"selectCircleItem: is null");
             return;
         }
+
+
         LinearLayout commentLv = (LinearLayout) selectCircleItem.findViewById(R.id.item_pinglun_layout);
         if (commentConfig.commentType == CommentConfig.Type.REPLY) {
             //回复评论的情况
