@@ -1,6 +1,8 @@
 package com.example.editdemo;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,13 +19,13 @@ public class ListBaseAdapter extends BaseAdapter {
     private Context mContext;
     private List<TestEntity> listdata;
     private LayoutInflater mInflater;
-    private View.OnClickListener mClickListener;
+    private IItemClick temClick;
 
-    public ListBaseAdapter(Context mContext, List<TestEntity> listdata , View.OnClickListener clickListener) {
+    public ListBaseAdapter(Context mContext, List<TestEntity> listdata,IItemClick temClick) {
         this.mContext = mContext;
         this.listdata = listdata;
-        this.mClickListener = clickListener;
         mInflater = LayoutInflater.from(mContext);
+        this.temClick=temClick;
     }
 
     @Override
@@ -56,32 +58,48 @@ public class ListBaseAdapter extends BaseAdapter {
 
         holderView.name.setText(listdata.get(i).getName());
         holderView.name.setTag(i);
-       /* holderView.name.setOnClickListener(new View.OnClickListener() {
+        holderView.name.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 CommentConfig commentConfig = new CommentConfig();
                 commentConfig.circlePosition = i;
-                commentConfig.commentType = CommentConfig.Type.REPLY;
-
-
-                ((MainActivity)mContext).updateEditTextBodyVisible(View.VISIBLE,commentConfig);
+                commentConfig.commentPosition = 0;
+                commentConfig.commentType = CommentConfig.Type.PUBLIC;
+                temClick.itemClick(commentConfig);
             }
-        });*/
-        holderView.name.setOnClickListener(mClickListener);
+        });
 
         if (listdata.get(i).getPinglunList() != null && listdata.get(i).getPinglunList().size() > 0) {
-            initPinglunData(listdata.get(i).getPinglunList(), holderView.pinlunContainer);
+            initPinglunData(listdata.get(i).getPinglunList(), holderView.pinlunContainer,i);
         }
         return view;
     }
 
-    private void initPinglunData(List<String> pinglunList, LinearLayout pinlunContainer) {
+    private void initPinglunData(List<String> pinglunList, LinearLayout pinlunContainer, final int pos) {
         if (pinglunList.isEmpty()) {
             return;
         }
+        pinlunContainer.removeAllViews();
         for (int i = 0; i < pinglunList.size(); i++) {
             TextView textView = new TextView(mContext);
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 80);
+            textView.setLayoutParams(layoutParams);
+            textView.setPadding(10,0,0,0);
+            textView.setBackgroundColor(Color.parseColor("#356695"));
+            textView.setTextColor(Color.parseColor("#cc000000"));
+            textView.setGravity(Gravity.CENTER_VERTICAL|Gravity.LEFT);
             textView.setText(pinglunList.get(i));
+            final int finalI = i;
+            textView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    CommentConfig commentConfig = new CommentConfig();
+                    commentConfig.circlePosition = pos;
+                    commentConfig.commentPosition = finalI;
+                    commentConfig.commentType = CommentConfig.Type.REPLY;
+                    temClick.itemClick(commentConfig);
+                }
+            });
             pinlunContainer.addView(textView);
         }
     }
@@ -89,5 +107,10 @@ public class ListBaseAdapter extends BaseAdapter {
     private static class HolderView {
         TextView name;
         LinearLayout pinlunContainer;
+    }
+
+
+    public interface IItemClick {
+        void itemClick(CommentConfig commentConfig);
     }
 }

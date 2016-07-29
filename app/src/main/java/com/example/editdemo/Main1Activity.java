@@ -17,7 +17,7 @@ import android.widget.RelativeLayout;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Main1Activity extends Activity implements View.OnClickListener {
+public class Main1Activity extends Activity implements View.OnClickListener  ,ListBaseAdapter.IItemClick{
 
     private ListView mListView;
     private ListBaseAdapter adapter;
@@ -139,5 +139,10 @@ public class Main1Activity extends Activity implements View.OnClickListener {
         }
         imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
         //imm.showSoftInput(view, InputMethodManager.SHOW_FORCED);
+    }
+
+    @Override
+    public void itemClick(CommentConfig commentConfig) {
+
     }
 }

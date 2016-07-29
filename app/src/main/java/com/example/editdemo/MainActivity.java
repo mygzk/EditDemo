@@ -18,7 +18,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends Activity implements View.OnClickListener {
+public class MainActivity extends Activity implements View.OnClickListener   ,ListBaseAdapter.IItemClick{
 
     private ListView mListView;
     private ListBaseAdapter adapter;
@@ -256,6 +256,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 //updateEditTextBodyVisible(View.GONE, null);
                 break;
         }
+
+    }
+
+    @Override
+    public void itemClick(CommentConfig commentConfig) {
 
     }
 }

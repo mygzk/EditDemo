@@ -19,7 +19,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Main2Activity extends Activity implements View.OnClickListener {
+public class Main2Activity extends Activity implements View.OnClickListener, ListBaseAdapter.IItemClick {
 
     private ListView listView2;
     private LinearLayout editBody;
@@ -27,6 +27,8 @@ public class Main2Activity extends Activity implements View.OnClickListener {
 
     private ListBaseAdapter adapter;
     private List<TestEntity> listdata;
+    private List<TestEntity> final_listdata = new ArrayList<>();
+
     private EditText editText;
     private ImageView sendImg;
     private String TAG = Main2Activity.class.getSimpleName();
@@ -42,7 +44,6 @@ public class Main2Activity extends Activity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
-
         initView();
     }
 
@@ -55,9 +56,10 @@ public class Main2Activity extends Activity implements View.OnClickListener {
         sendImg.setOnClickListener(this);
 
         listView2 = (ListView) findViewById(R.id.listview2);
-        initData();
-        adapter = new ListBaseAdapter(this, listdata, this);
+
+        adapter = new ListBaseAdapter(this, final_listdata, this);
         listView2.setAdapter(adapter);
+        initData();
 
         RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) editBody.getLayoutParams();
         View footView = new View(this);
@@ -77,6 +79,10 @@ public class Main2Activity extends Activity implements View.OnClickListener {
             entity.setName("test-" + i);
             listdata.add(entity);
         }
+
+        final_listdata.clear();
+        final_listdata.addAll(listdata);
+        adapter.notifyDataSetChanged();
 
     }
 
@@ -109,10 +115,9 @@ public class Main2Activity extends Activity implements View.OnClickListener {
                     updateEditTextBodyVisible(View.GONE, null);
                     return;
                 }
-
+                Log.e(TAG, "commentConfig＝ " + commentConfig.toString());
                 Log.e(TAG, "getListviewOffset:" + getListviewOffset(commentConfig));
                 listView2.setSelectionFromTop(commentConfig.circlePosition, getListviewOffset(commentConfig));
-
             }
         });
 
@@ -137,6 +142,8 @@ public class Main2Activity extends Activity implements View.OnClickListener {
                     return;
                 }
                 listdata.get(selectedPostion).getPinglunList().add(content);
+                final_listdata.clear();
+                final_listdata.addAll(listdata);
                 adapter.notifyDataSetChanged();
                 updateEditTextBodyVisible(View.GONE, null);
 
@@ -155,6 +162,7 @@ public class Main2Activity extends Activity implements View.OnClickListener {
             CommonUtils.showSoftInput(editText.getContext(), editText);
 
         } else if (View.GONE == visibility) {
+            editText.setText("");
             //隐藏键盘
             CommonUtils.hideSoftInput(editText.getContext(), editText);
         }
@@ -186,10 +194,11 @@ public class Main2Activity extends Activity implements View.OnClickListener {
         //这里如果你的listview上面还有其它占高度的控件，则需要减去该控件高度，listview的headview除外。
         //int listviewOffset = mScreenHeight - mSelectCircleItemH - mCurrentKeyboardH - mEditTextBodyHeight;
         int listviewOffset = screenHeight - selectItemH - currentKeyboardH - editTextBodyHeight;
-       /* if(commentConfig.commentType == CommentConfig.Type.REPLY){
+        if (commentConfig.commentType == CommentConfig.Type.REPLY) {
             //回复评论的情况
             listviewOffset = listviewOffset + selectCommentItemOffset;
-        }*/
+        }
+       // listviewOffset = listviewOffset + selectCommentItemOffset;
         return listviewOffset;
     }
 
@@ -203,28 +212,39 @@ public class Main2Activity extends Activity implements View.OnClickListener {
 
         if (selectCircleItem != null) {
             selectItemH = selectCircleItem.getHeight();
+            return;
         }
-
-       /* if(commentConfig.commentType == CommentConfig.Type.REPLY){
+        LinearLayout commentLv = (LinearLayout) selectCircleItem.findViewById(R.id.item_pinglun_layout);
+        if (commentConfig.commentType == CommentConfig.Type.REPLY) {
             //回复评论的情况
-            CommentListView commentLv = (CommentListView) selectCircleItem.findViewById(R.id.commentList);
-            if(commentLv!=null){
+            if (commentLv != null) {
                 //找到要回复的评论view,计算出该view距离所属动态底部的距离
                 View selectCommentItem = commentLv.getChildAt(commentConfig.commentPosition);
-                if(selectCommentItem != null){
+                if (selectCommentItem != null) {
                     //选择的commentItem距选择的CircleItem底部的距离
                     selectCommentItemOffset = 0;
                     View parentView = selectCommentItem;
                     do {
                         int subItemBottom = parentView.getBottom();
                         parentView = (View) parentView.getParent();
-                        if(parentView != null){
+                        if (parentView != null) {
                             selectCommentItemOffset += (parentView.getHeight() - subItemBottom);
                         }
                     } while (parentView != null && parentView != selectCircleItem);
                 }
             }
+        } /*else {
+            if (commentLv != null) {
+                selectCommentItemOffset = commentLv.getHeight();
+            }
         }*/
     }
 
+    @Override
+    public void itemClick(CommentConfig commentConfig) {
+        this.commentConfig = commentConfig;
+
+        selectedPostion = commentConfig.circlePosition;
+        updateEditTextBodyVisible(View.VISIBLE, commentConfig);
+    }
 }
