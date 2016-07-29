@@ -3,6 +3,8 @@ package com.example.editdemo;
 import android.app.Activity;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -15,6 +17,9 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+
+import com.example.editdemo.bean.CommentEntity;
+import com.example.editdemo.bean.TestEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,16 +78,39 @@ public class Main2Activity extends Activity implements View.OnClickListener, Lis
 
 
     private void initData() {
-        listdata = new ArrayList<>();
-        for (int i = 0; i < 50; i++) {
-            TestEntity entity = new TestEntity();
-            entity.setName("test-" + i);
-            listdata.add(entity);
-        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                listdata = new ArrayList<>();
+                for (int i = 0; i < 10; i++) {
+                    TestEntity entity = new TestEntity();
+                    entity.setTitle("标题-" + i);
+                    entity.setName(i + ":你好,欢迎来到我的朋友圈，欢迎评论");
+                    List<CommentEntity> commentList = new ArrayList<>();
+                    for (int j = 0; j < 3; j++) {
+                        CommentEntity entity1 = new CommentEntity();
+                        entity1.setName("小明-" + j);
+                        entity1.setContent("哈哈，我来了-" + j);
+                        entity1.setType(CommentEntity.COMMENT_TYPE_OTHER);
+                        commentList.add(entity1);
+                    }
+                    entity.setCommentList(commentList);
+                    listdata.add(entity);
+                }
 
-        final_listdata.clear();
-        final_listdata.addAll(listdata);
-        adapter.notifyDataSetChanged();
+
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        final_listdata.clear();
+                        final_listdata.addAll(listdata);
+                        adapter.notifyDataSetChanged();
+                    }
+                });
+
+            }
+        }).start();
+
 
     }
 
@@ -112,7 +140,7 @@ public class Main2Activity extends Activity implements View.OnClickListener, Lis
                     updateEditTextBodyVisible(View.GONE, null);
                     return;
                 }
-                listView2.setSelectionFromTop(commentConfig.circlePosition, getListviewOffset(commentConfig));
+                listView2.setSelectionFromTop(commentConfig.itemPosition, getListviewOffset(commentConfig));
             }
         });
 
@@ -126,8 +154,8 @@ public class Main2Activity extends Activity implements View.OnClickListener, Lis
             case R.id.item_name:
                 selectedPostion = (int) view.getTag();
                 commentConfig = new CommentConfig();
-                commentConfig.circlePosition = selectedPostion;
-                commentConfig.commentPosition = 0;
+                commentConfig.itemPosition = selectedPostion;
+                commentConfig.commentItemPosition = 0;
                 updateEditTextBodyVisible(View.VISIBLE, commentConfig);
                 break;
             case R.id.sendIv:
@@ -199,7 +227,7 @@ public class Main2Activity extends Activity implements View.OnClickListener, Lis
 
         int firstPosition = listView2.getFirstVisiblePosition();
         //只能返回当前可见区域（列表可滚动）的子项
-        View selectCircleItem = listView2.getChildAt(commentConfig.circlePosition - firstPosition);
+        View selectCircleItem = listView2.getChildAt(commentConfig.itemPosition - firstPosition);
         Log.e(TAG, "selectCircleItem:" + selectCircleItem);
         if (selectCircleItem != null) {
             selectItemH = selectCircleItem.getHeight();
@@ -214,7 +242,7 @@ public class Main2Activity extends Activity implements View.OnClickListener, Lis
             //回复评论的情况
             if (commentLv != null) {
                 //找到要回复的评论view,计算出该view距离所属动态底部的距离
-                View selectCommentItem = commentLv.getChildAt(commentConfig.commentPosition);
+                View selectCommentItem = commentLv.getChildAt(commentConfig.commentItemPosition);
                 if (selectCommentItem != null) {
                     //选择的commentItem距选择的CircleItem底部的距离
                     selectCommentItemOffset = 0;
@@ -239,7 +267,7 @@ public class Main2Activity extends Activity implements View.OnClickListener, Lis
     @Override
     public void itemClick(CommentConfig commentConfig) {
         this.commentConfig = commentConfig;
-        selectedPostion = commentConfig.circlePosition;
+        selectedPostion = commentConfig.itemPosition;
         updateEditTextBodyVisible(View.VISIBLE, commentConfig);
     }
 }

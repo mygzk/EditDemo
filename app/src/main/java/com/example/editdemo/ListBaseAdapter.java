@@ -10,6 +10,9 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.editdemo.bean.CommentEntity;
+import com.example.editdemo.bean.TestEntity;
+
 import java.util.List;
 
 /**
@@ -49,38 +52,41 @@ public class ListBaseAdapter extends BaseAdapter {
         if (view == null) {
             holderView = new HolderView();
             view = mInflater.inflate(R.layout.list_item, null);
-            holderView.name = (TextView) view.findViewById(R.id.item_name);
+            holderView.content = (TextView) view.findViewById(R.id.item_name);
+            holderView.title = (TextView) view.findViewById(R.id.item_title);
+            holderView.pinglun = (TextView) view.findViewById(R.id.item_comment);
             holderView.pinlunContainer = (LinearLayout) view.findViewById(R.id.item_pinglun_layout);
             view.setTag(holderView);
         } else {
             holderView = (HolderView) view.getTag();
         }
 
-        holderView.name.setText(listdata.get(i).getName());
-        holderView.name.setTag(i);
-        holderView.name.setOnClickListener(new View.OnClickListener() {
+        holderView.content.setText(listdata.get(i).getName());
+        holderView.title.setText(listdata.get(i).getTitle());
+        holderView.pinglun.setTag(i);
+        holderView.pinglun.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 CommentConfig commentConfig = new CommentConfig();
-                commentConfig.circlePosition = i;
-                commentConfig.commentPosition = 0;
+                commentConfig.itemPosition = i;
+                commentConfig.commentItemPosition = 0;
                 commentConfig.commentType = CommentConfig.Type.PUBLIC;
                 temClick.itemClick(commentConfig);
             }
         });
 
-        if (listdata.get(i).getPinglunList() != null && listdata.get(i).getPinglunList().size() > 0) {
-            initPinglunData(listdata.get(i).getPinglunList(), holderView.pinlunContainer,i);
+        if (listdata.get(i).getCommentList() != null && listdata.get(i).getCommentList().size() > 0) {
+            initPinglunData(listdata.get(i).getCommentList(), holderView.pinlunContainer,i);
         }
         return view;
     }
 
-    private void initPinglunData(List<String> pinglunList, LinearLayout pinlunContainer, final int pos) {
-        if (pinglunList.isEmpty()) {
+    private void initPinglunData(List<CommentEntity> commentList, LinearLayout pinlunContainer, final int pos) {
+        if (commentList.isEmpty()) {
             return;
         }
         pinlunContainer.removeAllViews();
-        for (int i = 0; i < pinglunList.size(); i++) {
+        for (int i = 0; i < commentList.size(); i++) {
             TextView textView = new TextView(mContext);
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 80);
             textView.setLayoutParams(layoutParams);
@@ -88,14 +94,19 @@ public class ListBaseAdapter extends BaseAdapter {
             textView.setBackgroundColor(Color.parseColor("#356695"));
             textView.setTextColor(Color.parseColor("#cc000000"));
             textView.setGravity(Gravity.CENTER_VERTICAL|Gravity.LEFT);
-            textView.setText(pinglunList.get(i));
+            CommentEntity entity=commentList.get(i);
+            if(entity.getType()==CommentEntity.COMMENT_TYPE_OTHER){
+                textView.setText(commentList.get(i).getName()+":"+commentList.get(i).getContent());
+            }else{
+                textView.setText("回复:@"+commentList.get(i).getName()+":"+commentList.get(i).getContent());
+            }
             final int finalI = i;
             textView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     CommentConfig commentConfig = new CommentConfig();
-                    commentConfig.circlePosition = pos;
-                    commentConfig.commentPosition = finalI;
+                    commentConfig.itemPosition = pos;
+                    commentConfig.commentItemPosition = finalI;
                     commentConfig.commentType = CommentConfig.Type.REPLY;
                     temClick.itemClick(commentConfig);
                 }
@@ -105,7 +116,9 @@ public class ListBaseAdapter extends BaseAdapter {
     }
 
     private static class HolderView {
-        TextView name;
+        TextView title;
+        TextView content;
+        TextView pinglun;
         LinearLayout pinlunContainer;
     }
 

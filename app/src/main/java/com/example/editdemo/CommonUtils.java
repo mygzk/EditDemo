@@ -6,6 +6,7 @@ import android.view.inputmethod.InputMethodManager;
 
 /**
  * Created by guozhk on 16-7-26.
+ * 软键盘的显示与隐藏帮助类
  */
 public class CommonUtils {
 

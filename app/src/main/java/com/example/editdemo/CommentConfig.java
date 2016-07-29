@@ -4,27 +4,28 @@ package com.example.editdemo;
  * Created by guozhk on 16-7-26.
  */
 public class CommentConfig {
-    public static enum Type{
+    public enum Type {
         PUBLIC("public"), REPLY("reply");
 
         private String value;
-        private Type(String value){
+
+        private Type(String value) {
             this.value = value;
         }
 
     }
 
-    public int circlePosition;
-    public int commentPosition;
-    public Type commentType;
+    public int itemPosition;//列表item位置
+    public int commentItemPosition;//评论列表位置
+    public Type commentType;//类型
 
 
     @Override
     public String toString() {
         String replyUserStr = "";
 
-        return "circlePosition = " + circlePosition
-                + "; commentPosition = " + commentPosition
+        return "itemPosition = " + itemPosition
+                + "; commentItemPosition = " + commentItemPosition
                 + "; commentType ＝ " + commentType
                 + "; replyUser = " + replyUserStr;
     }
