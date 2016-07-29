@@ -14,7 +14,9 @@ public class CommentConfig {
         }
 
     }
-
+    
+    public int itemId;//列表item Id
+    public int commentItemId;//评论列表位置 id
     public int itemPosition;//列表item位置
     public int commentItemPosition;//评论列表位置
     public Type commentType;//类型

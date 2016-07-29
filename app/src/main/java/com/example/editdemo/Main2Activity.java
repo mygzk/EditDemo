@@ -53,7 +53,6 @@ public class Main2Activity extends Activity implements View.OnClickListener, Lis
     }
 
     private void initView() {
-
         rootBody = (RelativeLayout) findViewById(R.id.root);
         editBody = (LinearLayout) findViewById(R.id.editTextBodyLl);
         editText = (EditText) findViewById(R.id.circleEt);
@@ -82,13 +81,15 @@ public class Main2Activity extends Activity implements View.OnClickListener, Lis
             @Override
             public void run() {
                 listdata = new ArrayList<>();
-                for (int i = 0; i < 10; i++) {
+                for (int i = 0; i < 50; i++) {
                     TestEntity entity = new TestEntity();
+                    entity.setId(i);
                     entity.setTitle("标题-" + i);
                     entity.setName(i + ":你好,欢迎来到我的朋友圈，欢迎评论");
                     List<CommentEntity> commentList = new ArrayList<>();
-                    for (int j = 0; j < 3; j++) {
+                    for (int j = 1; j <= 3; j++) {
                         CommentEntity entity1 = new CommentEntity();
+                        entity1.setId(j);
                         entity1.setName("小明-" + j);
                         entity1.setContent("哈哈，我来了-" + j);
                         entity1.setType(CommentEntity.COMMENT_TYPE_OTHER);
@@ -164,7 +165,28 @@ public class Main2Activity extends Activity implements View.OnClickListener, Lis
                     Toast.makeText(Main2Activity.this, "内容为空", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                listdata.get(selectedPostion).getPinglunList().add(content);
+                if (commentConfig == null) {
+                    return;
+                }
+
+                for (int i = 0; i < listdata.size(); i++) {
+                    TestEntity testEntity = listdata.get(i);
+                    if (testEntity.getId() == commentConfig.itemId) {
+                        CommentEntity entity = new CommentEntity();
+                        entity.setId(listdata.size()+1);
+                        entity.setContent(content);
+                        if (commentConfig.commentItemId == 0) {
+                            entity.setType(CommentEntity.COMMENT_TYPE_SELF);
+                            entity.setName("self");
+                        }else{
+                            entity.setType(CommentEntity.COMMENT_TYPE_OTHER);
+                            entity.setName("other");
+                        }
+                        listdata.get(i).getCommentList().add(entity);
+                        break;
+                    }
+
+                }
                 final_listdata.clear();
                 final_listdata.addAll(listdata);
                 adapter.notifyDataSetChanged();

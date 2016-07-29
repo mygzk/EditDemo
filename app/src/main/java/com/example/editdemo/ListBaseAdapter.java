@@ -24,11 +24,11 @@ public class ListBaseAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
     private IItemClick temClick;
 
-    public ListBaseAdapter(Context mContext, List<TestEntity> listdata,IItemClick temClick) {
+    public ListBaseAdapter(Context mContext, List<TestEntity> listdata, IItemClick temClick) {
         this.mContext = mContext;
         this.listdata = listdata;
         mInflater = LayoutInflater.from(mContext);
-        this.temClick=temClick;
+        this.temClick = temClick;
     }
 
     @Override
@@ -64,10 +64,13 @@ public class ListBaseAdapter extends BaseAdapter {
         holderView.content.setText(listdata.get(i).getName());
         holderView.title.setText(listdata.get(i).getTitle());
         holderView.pinglun.setTag(i);
+        final TestEntity testEntity = listdata.get(i);
         holderView.pinglun.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 CommentConfig commentConfig = new CommentConfig();
+                commentConfig.itemId = testEntity.getId();
+                commentConfig.commentItemId = 0;
                 commentConfig.itemPosition = i;
                 commentConfig.commentItemPosition = 0;
                 commentConfig.commentType = CommentConfig.Type.PUBLIC;
@@ -75,42 +78,52 @@ public class ListBaseAdapter extends BaseAdapter {
             }
         });
 
-        if (listdata.get(i).getCommentList() != null && listdata.get(i).getCommentList().size() > 0) {
-            initPinglunData(listdata.get(i).getCommentList(), holderView.pinlunContainer,i);
+        if (testEntity != null) {
+            initPinglunData(testEntity, holderView.pinlunContainer, i);
         }
         return view;
     }
 
-    private void initPinglunData(List<CommentEntity> commentList, LinearLayout pinlunContainer, final int pos) {
+    private void initPinglunData(final TestEntity testEntity, LinearLayout pinlunContainer, final int pos) {
+        if (testEntity == null) {
+            return;
+        }
+
+        final List<CommentEntity> commentList = testEntity.getCommentList();
         if (commentList.isEmpty()) {
             return;
         }
+
         pinlunContainer.removeAllViews();
         for (int i = 0; i < commentList.size(); i++) {
             TextView textView = new TextView(mContext);
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 80);
             textView.setLayoutParams(layoutParams);
-            textView.setPadding(10,0,0,0);
+            textView.setPadding(10, 0, 0, 0);
             textView.setBackgroundColor(Color.parseColor("#356695"));
             textView.setTextColor(Color.parseColor("#cc000000"));
-            textView.setGravity(Gravity.CENTER_VERTICAL|Gravity.LEFT);
-            CommentEntity entity=commentList.get(i);
-            if(entity.getType()==CommentEntity.COMMENT_TYPE_OTHER){
-                textView.setText(commentList.get(i).getName()+":"+commentList.get(i).getContent());
-            }else{
-                textView.setText("回复:@"+commentList.get(i).getName()+":"+commentList.get(i).getContent());
+            textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
+            CommentEntity entity = commentList.get(i);
+            if (entity.getType() == CommentEntity.COMMENT_TYPE_OTHER) {
+                textView.setText(commentList.get(i).getName() + ":" + commentList.get(i).getContent());
+
+                final int finalI = i;
+                textView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        CommentConfig commentConfig = new CommentConfig();
+                        commentConfig.itemPosition = pos;
+                        commentConfig.itemId = testEntity.getId();
+                        commentConfig.commentItemId = commentList.get(finalI).getId();
+                        commentConfig.commentItemPosition = finalI;
+                        commentConfig.commentType = CommentConfig.Type.REPLY;
+                        temClick.itemClick(commentConfig);
+                    }
+                });
+            } else {
+                textView.setText("回复:@" + commentList.get(i).getName() + ":" + commentList.get(i).getContent());
             }
-            final int finalI = i;
-            textView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    CommentConfig commentConfig = new CommentConfig();
-                    commentConfig.itemPosition = pos;
-                    commentConfig.commentItemPosition = finalI;
-                    commentConfig.commentType = CommentConfig.Type.REPLY;
-                    temClick.itemClick(commentConfig);
-                }
-            });
+
             pinlunContainer.addView(textView);
         }
     }
