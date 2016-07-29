@@ -194,11 +194,11 @@ public class Main2Activity extends Activity implements View.OnClickListener, Lis
         //这里如果你的listview上面还有其它占高度的控件，则需要减去该控件高度，listview的headview除外。
         //int listviewOffset = mScreenHeight - mSelectCircleItemH - mCurrentKeyboardH - mEditTextBodyHeight;
         int listviewOffset = screenHeight - selectItemH - currentKeyboardH - editTextBodyHeight;
-        if (commentConfig.commentType == CommentConfig.Type.REPLY) {
+      /*  if (commentConfig.commentType == CommentConfig.Type.REPLY) {
             //回复评论的情况
             listviewOffset = listviewOffset + selectCommentItemOffset;
-        }
-       // listviewOffset = listviewOffset + selectCommentItemOffset;
+        }*/
+        listviewOffset = listviewOffset + selectCommentItemOffset;
         return listviewOffset;
     }
 
@@ -237,11 +237,11 @@ public class Main2Activity extends Activity implements View.OnClickListener, Lis
                     } while (parentView != null && parentView != selectCircleItem);
                 }
             }
-        } /*else {
+        } else {
             if (commentLv != null) {
                 selectCommentItemOffset = commentLv.getHeight();
             }
-        }*/
+        }
     }
 
     @Override
