@@ -60,6 +60,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
         adapter = new ListBaseAdapter(this, listdata,this);
         mListView.setAdapter(adapter);
 
+
+
     }
 
     private void initData() {
@@ -81,6 +83,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
             @Override
             public void onGlobalLayout() {
 
+                Log.e(TAG,"onGlobalLayout------");
                 Rect r = new Rect();
                 bodyLayout.getWindowVisibleDisplayFrame(r);
                 int statusBarH = getStatusBarHeight();//状态栏高度
@@ -90,7 +93,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     r.top = statusBarH;
                 }
                 int keyboardH = screenH - (r.bottom - r.top);
-                Log.d(TAG, "screenH＝ " + screenH + " &keyboardH = " + keyboardH + " &r.bottom=" + r.bottom + " &top=" + r.top + " &statusBarH=" + statusBarH);
+                Log.e(TAG, "screenH＝ " + screenH + " currentKeyboardH="+currentKeyboardH+" &keyboardH = " + keyboardH + " &r.bottom=" + r.bottom + " &top=" + r.top + " &statusBarH=" + statusBarH);
 
                 if (keyboardH == currentKeyboardH) {//有变化时才处理，否则会陷入死循环
                     return;
@@ -109,8 +112,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     layoutManager.scrollToPositionWithOffset(commentConfig.circlePosition + CircleAdapter.HEADVIEW_SIZE, getListviewOffset(commentConfig));
                 }*/
 
-                mListView.smoothScrollToPosition(commentConfig.circlePosition+getListviewOffset(commentConfig));
-               ;
+                Log.e(TAG,"getListviewOffset:"+getListviewOffset(commentConfig));
+                //mListView.smoothScrollBy(getListviewOffset(commentConfig),500);
+                mListView.setSelectionFromTop(commentConfig.circlePosition,0);
             }
         });
     }
@@ -161,21 +165,21 @@ public class MainActivity extends Activity implements View.OnClickListener {
             selectCircleItemH = selectCircleItem.getHeight();
         }
 
-        if (commentConfig.commentType == CommentConfig.Type.REPLY) {
+      /*  if (commentConfig.commentType == CommentConfig.Type.REPLY) {
             //回复评论的情况
             LinearLayout commentLv = (LinearLayout) selectCircleItem.findViewById(R.id.item_pinglun_layout);
             if (commentLv != null) {
                 //找到要回复的评论view,计算出该view距离所属动态底部的距离
                 View selectCommentItem = commentLv.getChildAt(commentConfig.commentPosition);
                 selectCommentItemOffset = 0;
-                /*if (selectCommentItem != null) {
+                *//*if (selectCommentItem != null) {
                     //选择的commentItem距选择的CircleItem底部的距离
                     selectCommentItemOffset = 0;
                     View parentView = selectCommentItem;
                     int subItemBottom = parentView.getBottom();
                     selectCommentItemOffset += (parentView.getHeight() - subItemBottom);
                 }
-*/
+*//*
 
 
                 if(selectCommentItem != null){
@@ -191,7 +195,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     } while (parentView != null && parentView != selectCircleItem);
                 }
             }
-        }
+        }*/
     }
 
 
@@ -208,9 +212,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
         int listviewOffset = screenHeight - selectCircleItemH - currentKeyboardH - editTextBodyHeight;
         if(commentConfig.commentType == CommentConfig.Type.REPLY){
             //回复评论的情况
-          //  listviewOffset = listviewOffset + selectCommentItemOffset;
+            listviewOffset = listviewOffset + selectCommentItemOffset;
         }
-        Log.i(TAG, "listviewOffset : " + listviewOffset);
         return listviewOffset;
     }
 
@@ -250,7 +253,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 }
                 listdata.get(selectedPostion).getPinglunList().add(content);
                 adapter.notifyDataSetChanged();
-                updateEditTextBodyVisible(View.GONE, null);
+                //updateEditTextBodyVisible(View.GONE, null);
                 break;
         }
 

@@ -5,14 +5,15 @@
     android:layout_height="wrap_content"
     android:padding="8dp"
     android:gravity="center_vertical"
-    android:background="#f6f6f6"
+    android:background="#CC123123"
     android:orientation="horizontal"
-    android:visibility="gone"
+    android:visibility="invisible"
+
     >
     <EditText
         android:id="@+id/circleEt"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:background="@null"
         android:layout_weight="1"
         android:hint="说点什么..."
@@ -20,7 +21,7 @@
     <ImageView
         android:id="@+id/sendIv"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:layout_marginLeft="4dp"
         android:contentDescription="@null"
         android:src="@drawable/biz_chat_comment_send_prs" />

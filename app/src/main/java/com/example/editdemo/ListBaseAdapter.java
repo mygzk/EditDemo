@@ -68,6 +68,7 @@ public class ListBaseAdapter extends BaseAdapter {
             }
         });*/
         holderView.name.setOnClickListener(mClickListener);
+
         if (listdata.get(i).getPinglunList() != null && listdata.get(i).getPinglunList().size() > 0) {
             initPinglunData(listdata.get(i).getPinglunList(), holderView.pinlunContainer);
         }
