@@ -91,7 +91,6 @@ public class Main2Activity extends Activity implements View.OnClickListener, Lis
         swipeRefreshLayoutVTO.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                Log.e(TAG, "onGlobalLayout------");
                 Rect r = new Rect();
                 rootBody.getWindowVisibleDisplayFrame(r);
                 int statusBarH = getStatusBarHeight();//状态栏高度
@@ -101,8 +100,6 @@ public class Main2Activity extends Activity implements View.OnClickListener, Lis
                     r.top = statusBarH;
                 }
                 int keyboardH = screenH - (r.bottom - r.top);
-                Log.e(TAG, "screenH＝ " + screenH + " currentKeyboardH=" + currentKeyboardH + " &keyboardH = " + keyboardH + " &r.bottom=" + r.bottom + " &top=" + r.top + " &statusBarH=" + statusBarH);
-
                 if (keyboardH == currentKeyboardH) {//有变化时才处理，否则会陷入死循环
                     return;
                 }
@@ -115,8 +112,6 @@ public class Main2Activity extends Activity implements View.OnClickListener, Lis
                     updateEditTextBodyVisible(View.GONE, null);
                     return;
                 }
-                Log.e(TAG, "commentConfig＝ " + commentConfig.toString());
-                Log.e(TAG, "getListviewOffset:" + getListviewOffset(commentConfig));
                 listView2.setSelectionFromTop(commentConfig.circlePosition, getListviewOffset(commentConfig));
             }
         });
@@ -191,13 +186,9 @@ public class Main2Activity extends Activity implements View.OnClickListener, Lis
     private int getListviewOffset(CommentConfig commentConfig) {
         if (commentConfig == null)
             return 0;
-        //这里如果你的listview上面还有其它占高度的控件，则需要减去该控件高度，listview的headview除外。
-        //int listviewOffset = mScreenHeight - mSelectCircleItemH - mCurrentKeyboardH - mEditTextBodyHeight;
+        //在这个demo中 这里如果你的listview上面还有其它占高度的控件，则需要减去该控件高度，listview的headview除外。
         int listviewOffset = screenHeight - selectItemH - currentKeyboardH - editTextBodyHeight;
-      /*  if (commentConfig.commentType == CommentConfig.Type.REPLY) {
-            //回复评论的情况
-            listviewOffset = listviewOffset + selectCommentItemOffset;
-        }*/
+        //在去除评论内容的高度
         listviewOffset = listviewOffset + selectCommentItemOffset;
         return listviewOffset;
     }
@@ -209,11 +200,11 @@ public class Main2Activity extends Activity implements View.OnClickListener, Lis
         int firstPosition = listView2.getFirstVisiblePosition();
         //只能返回当前可见区域（列表可滚动）的子项
         View selectCircleItem = listView2.getChildAt(commentConfig.circlePosition - firstPosition);
-        Log.e(TAG,"selectCircleItem:"+selectCircleItem);
+        Log.e(TAG, "selectCircleItem:" + selectCircleItem);
         if (selectCircleItem != null) {
             selectItemH = selectCircleItem.getHeight();
-        }else{
-            Log.e(TAG,"selectCircleItem: is null");
+        } else {
+            Log.e(TAG, "selectCircleItem: is null");
             return;
         }
 
@@ -238,6 +229,7 @@ public class Main2Activity extends Activity implements View.OnClickListener, Lis
                 }
             }
         } else {
+            //如果直接点击 item 评论按钮或者其他布局 计算显示评论区域高度
             if (commentLv != null) {
                 selectCommentItemOffset = commentLv.getHeight();
             }
@@ -247,7 +239,6 @@ public class Main2Activity extends Activity implements View.OnClickListener, Lis
     @Override
     public void itemClick(CommentConfig commentConfig) {
         this.commentConfig = commentConfig;
-
         selectedPostion = commentConfig.circlePosition;
         updateEditTextBodyVisible(View.VISIBLE, commentConfig);
     }
